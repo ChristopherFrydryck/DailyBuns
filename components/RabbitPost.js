@@ -73,7 +73,7 @@ class RabbitPost extends PureComponent {
         let ident = post.id
         var d = new Date().getTime();
     
-    
+        // force rerender
         this.setState({reRender: !this.state.reRender})
     
         let {favorites} = this.props.UserStore
