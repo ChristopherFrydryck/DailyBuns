@@ -64,6 +64,7 @@ export default class HomeScreen extends React.Component {
       rabbitPosts: [],
       isRefresh: false,
       reRender: false,
+      lastPostShowing: {},
     }
    
     
@@ -91,6 +92,7 @@ export default class HomeScreen extends React.Component {
     
   }
 
+
   addRabbits = (rabList) => {
     const {rabbitArray} = this.props.PostStore
     const db = firebase.firestore();
@@ -101,18 +103,19 @@ export default class HomeScreen extends React.Component {
       rabbitArray.clear();
 
      
-      rabList.sort((a, b) => b.data.dateAddedToDBMS - a.data.dateAddedToDBMS)
+      // rabList.sort((a, b) => b.data.dateAddedToDBMS - a.data.dateAddedToDBMS)
      
 
-      rabList.forEach((x) => {
-        x.data.dateToday = this.convertDateMS(x.data.dateAddedToDBMS)
-      })
+      // rabList.forEach((x) => {
+      //   x.data.dateToday = this.convertDateMS(x.data.dateAddedToDBMS)
+      // })
 
       for(let i = 0; i < rabList.length; i++){
         rabbitArray.push(rabList[i])
       }
-
-      this.setState({rabbitPosts: rabbitArray})    
+      var joined = this.state.rabbitPosts.concat(rabbitArray)
+      var lastPost = joined[joined.length - 1]
+      this.setState({rabbitPosts: joined, lastPostShowing: lastPost})    
 
    
   }
@@ -127,10 +130,14 @@ export default class HomeScreen extends React.Component {
     const rabbits = db.collection('rabbits');
     let preArray = [];
 
-    rabbits.get().then((querySnapshot) => {
+    rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
       querySnapshot.docs.map((doc, i) =>{
           preArray.push({id: doc.id, data: doc.data()})
       })
+
+
+
+
     
     }).then(() => {
           if(preArray.length == rabbitArray.length){
@@ -160,6 +167,20 @@ export default class HomeScreen extends React.Component {
     // })
 
   }
+
+  getNextRabbits = () => {
+    const db = firebase.firestore();
+    const rabbits = db.collection('rabbits');
+    var preArray = [];
+
+    rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.lastPostShowing).limit(10).get().then((querySnapshot) => {
+      querySnapshot.docs.map((doc, i) =>{
+          preArray.push({id: doc.id, data: doc.data()})
+      })
+    }).then(() => {
+      console.log(`First next post is: ${preArray[0].data.title}`)
+    })
+}
 
 
   onShare = async (post) => {
@@ -417,6 +438,7 @@ export default class HomeScreen extends React.Component {
             removeClippedSubviews={true}
             windowSize = {7}
             onViewableItemsChanged={this.onViewableItemsChanged }
+            onEndReached={() => this.getNextRabbits()}
             viewabilityConfig={{
               itemVisiblePercentThreshold: 40
             }}
