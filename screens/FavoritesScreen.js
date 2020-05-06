@@ -174,6 +174,10 @@ class FavoritesScreen extends React.Component {
       this.setState({isEmptyFavorites: false})
       // let favoritesArray = [];
       let orderTimeArray = this.props.UserStore.favorites.slice().sort((a, b) => b.time > a.time)
+
+      // let getNumPostsWithoutThumbnail = this.props.UserStore.favorites.slice().filter((x) => x.data.images.thumbnail.uri === null || x.data.images.thumbnail.uri.split('').length == 0)
+
+      // console.log(getNumPostsWithoutThumbnail)
       
       this.setState({favoritesData: orderTimeArray})
 
@@ -485,7 +489,7 @@ class FavoritesScreen extends React.Component {
         <TouchableOpacity onPress={() => this.openBunnyModal(item)} activeOpacity={0.8}>
        
           <Image style={{width: width/3 - 12, height: width/3 - 12, aspectRatio: 1/1, resizeMode: 'cover' }}
-          source={ item.data.images.thumbnail.uri ?{uri: item.data.images.thumbnail.uri}
+          source={ item.data.images.thumbnail.uri && item.data.images.thumbnail.uri.split("").length > 0 ? {uri: item.data.images.thumbnail.uri}
           : require("../assets/images/Error-Thumbnail.jpg")}
           // defaultSource={require("../assets/images/Error-Thumbnail.jpg")}
           />

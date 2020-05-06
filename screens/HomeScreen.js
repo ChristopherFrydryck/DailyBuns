@@ -83,7 +83,7 @@ export default class HomeScreen extends React.Component {
 
   componentDidMount = () => {
   
-    this.addRabbits()
+    this.updateRabbits()
     
     // console.log(this.props.PostStore.rabbitArray[0].data.isGif)
   
@@ -91,46 +91,28 @@ export default class HomeScreen extends React.Component {
     
   }
 
-  addRabbits = () => {
+  addRabbits = (rabList) => {
     const {rabbitArray} = this.props.PostStore
-    
     const db = firebase.firestore();
-    const rabbits = db.collection('rabbits');
-    let preArray = [];
-    this.setState({rabbitPosts: []})
-
-  
 
     
-    rabbits.get().then((querySnapshot) => {
-      querySnapshot.docs.map((doc, i) =>{
-        if(doc.data().title){
-          preArray.push({id: doc.id, data: doc.data()}) 
-        }   
-      })
-    }).then(() => {
+    
       
       rabbitArray.clear();
 
      
-      preArray.sort((a, b) => b.data.dateAddedToDBMS - a.data.dateAddedToDBMS)
+      rabList.sort((a, b) => b.data.dateAddedToDBMS - a.data.dateAddedToDBMS)
      
 
-      preArray.forEach((x) => {
+      rabList.forEach((x) => {
         x.data.dateToday = this.convertDateMS(x.data.dateAddedToDBMS)
       })
 
-      for(let i = 0; i < preArray.length; i++){
-        rabbitArray.push(preArray[i])
+      for(let i = 0; i < rabList.length; i++){
+        rabbitArray.push(rabList[i])
       }
 
-      this.setState({rabbitPosts: rabbitArray})
-
-    
-     
-    })
-
-    
+      this.setState({rabbitPosts: rabbitArray})    
 
    
   }
@@ -158,7 +140,7 @@ export default class HomeScreen extends React.Component {
           }else{
             // console.log("needs updated")
             this.flatListRef.scrollToOffset({ offset: 0, animated: true });
-            this.addRabbits()
+            this.addRabbits(preArray)
           }
   
     }).then(() => {
