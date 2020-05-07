@@ -141,7 +141,7 @@ export default class HomeScreen extends React.Component {
     
     }).then(() => {
           if(preArray.length == rabbitArray.length){
-            console.log("List is valid")
+            // console.log("List is valid")
             
             
           }else{
@@ -161,11 +161,6 @@ export default class HomeScreen extends React.Component {
     
 
 
-    
-    // preArray.forEach((x) => {
-    //   if(rabbitArray)
-    // })
-
   }
 
   getNextRabbits = () => {
@@ -173,21 +168,42 @@ export default class HomeScreen extends React.Component {
     const rabbits = db.collection('rabbits');
     var preArray = [];
 
-    rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.lastPostShowing).limit(10).get().then((querySnapshot) => {
+    rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.lastPostShowing.data.dateAddedToDB).limit(10).get().then((querySnapshot) => {
       querySnapshot.docs.map((doc, i) =>{
           preArray.push({id: doc.id, data: doc.data()})
       })
     }).then(() => {
-      console.log(`First next post is: ${preArray[0].data.title}`)
+      this.addRabbits(preArray)
+      // console.log(`First next post is: ${preArray[0].data.title}`)
     })
 }
 
 
   onShare = async (post) => {
+    var uri = "";
+
+    if(post.data.isGif){
+      if(post.data.gifs.fullSize.shortUri){
+        console.log('short gif')
+        uri = post.data.gifs.fullSize.shortUri;
+      }else{
+        console.log('long gif')
+        uri = post.data.gifs.fullSize.uri;
+      }
+    }else{
+      if(post.data.images.fullSize.shortUri){
+        console.log('short img')
+        uri = post.data.images.fullSize.shortUri;
+      }else{
+        console.log('long img')
+        uri = post.data.images.fullSize.uri;
+      }
+    }
+
     try {
       const result = await Share.share({
         title: 'Check out this post from DailyBuns!',
-        message: post.data.title + ": " + post.data.images.fullSize.uri,
+        message: post.data.title + ": " + uri,
         url: post.data.permalink,
       });
 
@@ -275,7 +291,7 @@ export default class HomeScreen extends React.Component {
 
     if (postsFavoritedID.includes(ident)){
 
-      console.log('already favorited')
+      // console.log('already favorited')
       // var index = postsFavoritedID.indexOf(ident);
       // if(index !== -1){
       //   postsFavorited.splice(index, 1)
@@ -321,68 +337,7 @@ export default class HomeScreen extends React.Component {
 
 
 
-  renderCards = ({item}) => {
-    let {favorites} = this.props.UserStore;
-    let favoriteIDs = [];
-    
-    
 
-    for(let i = 0; i < favorites.length; i++){
-      favoriteIDs.push(favorites[i].id)
-    }
-
- 
-    return(
-      <Card
-        elevation={5}
-        style={{ maxHeight: 480, width: Dimensions.get('window').width * 0.80, marginHorizontal: 12, marginBottom: 12}}
-      >
-        <View style={styles.shareContainer}>
-          <Text style={this.props.UserStore.viewed.includes(item.id) ? styles.viewed : null}>{this.props.UserStore.viewed.includes(item.id) ? 'Viewed' : null}</Text>
-          <TouchableOpacity onPress={() => this.onShare(item)} style={styles.shareContainerTO}>
-            <Text style={{color: 'white', marginRight: 8}}>Share</Text>
-          <Ionicons name={Platform.OS = 'ios' ? "ios-share-alt" : "md-share-alt"} size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-        
-   
-        <Lightbox 
-          renderContent = {() => (
-            <Image 
-            style={{width: Dimensions.get('window').width, height: (Dimensions.get('window').width/item.data.images.fullSize.width) * item.data.images.fullSize.height, resizeMode: 'contain'}} 
-            source={{uri: item.data.isGif ? item.data.gifs.fullSize.uri : item.data.images.fullSize.uri}}/>
-          )}
-          underlayColor="white"
-        >
-          <Card.Cover style={{borderTopLeftRadius: 5, borderTopRightRadius: 5, height: 245}} source={item.data.isGif && item.data.gifs.fullSize.uri.length > 0 ?{uri: item.data.gifs.fullSize.uri} : item.data.images.fullSize.uri.length > 0 ? {uri: item.data.images.fullSize.uri} : require("../assets/images/Error.jpg")}
-          defaultSource={require("../assets/images/ProfilePic-DailyBuns.jpg")}
-          />
-          </Lightbox>
-        <Card.Content>
-
-          <View style={{display: 'flex', flexDirection: "row"}}>
-          <Text numberOfLines={3} ellipsizeMode="tail" style={styles.title}>{item.data.title}</Text>
-            <TouchableOpacity onPress={() => this.toggleFavorite(item)} activeOpacity={0.8}>
-                <View style={styles.circle}>
-                 <Ionicons name={favoriteIDs.includes(item.id) ?"ios-heart" : "ios-heart-empty"} size={26} color="red" />
-                </View>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.subTitle}>Posted {item.data.dateToday} by u/{item.data.author}</Text>
-
-      
-          
-        </Card.Content>
-        <Card.Actions style={{position: 'absolute', bottom: 0}}>
-    <Button onPress={()=>{ Linking.openURL(`https://www.${item.data.permalink}`)}} icon="reddit" mode="contained" style={{backgroundColor: Colors.tintColor, justifyContent: 'flex-end', width: '100%'}}>View {item.data.numComments}+ Comments</Button>
-        </Card.Actions>
-        
-        
-      </Card>
-      
-    )
-    
-  }
 
 
   render(){

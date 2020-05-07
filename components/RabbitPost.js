@@ -43,7 +43,26 @@ class RabbitPost extends PureComponent {
    
 
     onShare = async (post) => {
-        let uri = post.data.images.fullSize.shortUri ? post.data.images.fullSize.shortUri : post.data.images.fullSize.uri
+      var uri = "";
+
+      if(post.data.isGif){
+        if(post.data.gifs.fullSize.shortUri){
+          console.log('short gif')
+          uri = post.data.gifs.fullSize.shortUri;
+        }else{
+          console.log('long gif')
+          uri = post.data.gifs.fullSize.uri;
+        }
+      }else{
+        if(post.data.images.fullSize.shortUri){
+          console.log('short img')
+          uri = post.data.images.fullSize.shortUri;
+        }else{
+          console.log('long img')
+          uri = post.data.images.fullSize.uri;
+        }
+      }
+      
         try {
           const result = await Share.share({
             title: 'Check out this post from DailyBuns!',
