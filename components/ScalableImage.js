@@ -1,10 +1,11 @@
 import React from 'react'
-import { StyleSheet, Dimensions, Image} from 'react-native';
+import { StyleSheet, Dimensions, View, Image, ImageBackground} from 'react-native';
 
 const ScalableImage = ({post, underlayColor, ...props}) => {
     const style = [styles.img,  props.style || {}]
     const allProps = Object.assign({}, props,{style:style}) 
-  
+
+    var imgReady = false;
 
    
     var imageHandle = (post) => {
@@ -46,11 +47,17 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
     //   console.log(`image is : ${imageHandle(post)}`)
 
     return(
-        <Image 
-        underlayColor={underlayColor}
-        source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
-        defaultSource={require("../assets/images/Error.jpg")}
-        {...allProps}/>
+        <ImageBackground
+          {...allProps}
+          source={require("../assets/images/Error.jpg")}  
+        >
+          <Image 
+          underlayColor={underlayColor}
+          source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
+          defaultSource={require("../assets/images/Error.jpg")}
+          onLoad={() => imgReady = true}
+          {...allProps}/>
+        </ImageBackground>
     )
 }
 
