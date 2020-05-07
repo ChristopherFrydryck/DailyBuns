@@ -3,8 +3,10 @@ import { StyleSheet, Dimensions, Image} from 'react-native';
 
 const ScalableImage = ({post, underlayColor, ...props}) => {
     const style = [styles.img,  props.style || {}]
-    const allProps = Object.assign({}, props,{style:style})  
+    const allProps = Object.assign({}, props,{style:style}) 
+  
 
+   
     var imageHandle = (post) => {
     
         var imgURL = null;
@@ -44,10 +46,15 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
     //   console.log(`image is : ${imageHandle(post)}`)
 
     return(
-        <Image underlayColor={underlayColor}
-        source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} {...allProps}/>
+        <Image 
+        underlayColor={underlayColor}
+        source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
+        defaultSource={require("../assets/images/Error.jpg")}
+        {...allProps}/>
     )
 }
+
+
 
 const styles = StyleSheet.create({
     img: {

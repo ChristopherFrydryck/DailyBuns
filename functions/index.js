@@ -82,13 +82,13 @@ function pushFullSize(post, id){
                 throw(e)
             }
             
-        }).then( async signedUrls => {
+        }).then( async (signedUrls) => {
             // console.log('signed url worked...')
             try{
                 fetchedFullSize = await signedUrls[0]
                 shortFullUrl = await shortenUrl(fetchedFullSize)
                 console.log("Pushed Full Size")
-                resolve("Pushed Full Size")
+                resolve(fetchedFullSize)
                 return(fetchedFullSize)
             }catch(e){
                 console.log("Error setting URL")
@@ -103,6 +103,9 @@ function pushFullSize(post, id){
             shortFullUrl = null;
             reject(e)
         }) 
+    }).catch(e => {
+        console.log(e)
+        throw(e)
     })
     
    
@@ -121,18 +124,33 @@ console.log('started gif...')
 return new Promise(function(resolve, reject){
     fetch(post.data.preview.images[0].variants.gif.source.url).then(res => {
         return res.body.pipe(writeStream)
-    }).catch(e => console.log(e))
-
+    }).then(() => {
+    try{
     return file.getSignedUrl({
         action: 'read',
         expires: '06-26-2222',
         version: "v2"
+        })
+    }catch(e){
+        console.log("Error signing URL")
+        fetchedFullSize = null;
+        shortFullUrl = null;
+        throw(e)
+    }
+
       }).then(async signedUrls => {
-        fetchedGif = await signedUrls[0]
-        shortGifUrl = await shortenUrl(fetchedGif)
-        console.log("Pushed Gif!")
-        resolve('Pushed Gif!')
-        return(fetchedGif)
+        try{
+            fetchedGif = await signedUrls[0]
+            shortGifUrl = await shortenUrl(fetchedGif)
+            console.log("Pushed Gif!")
+            resolve('Pushed Gif!')
+            return(fetchedGif)
+        }catch(e){
+            console.log("Error setting URL")
+            fetchedFullSize = null;
+            shortFullUrl = null;
+            throw(e)
+        }
     }).catch(e => {
         // console.log(e);
         fetchedGif = null;
