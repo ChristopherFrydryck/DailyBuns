@@ -47,18 +47,14 @@ class RabbitPost extends PureComponent {
 
       if(post.data.isGif){
         if(post.data.gifs.fullSize.shortUri){
-          console.log('short gif')
           uri = post.data.gifs.fullSize.shortUri;
         }else{
-          console.log('long gif')
           uri = post.data.gifs.fullSize.uri;
         }
       }else{
         if(post.data.images.fullSize.shortUri){
-          console.log('short img')
           uri = post.data.images.fullSize.shortUri;
         }else{
-          console.log('long img')
           uri = post.data.images.fullSize.uri;
         }
       }
