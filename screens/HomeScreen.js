@@ -83,8 +83,25 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount = () => {
-  
+
+    const {rabbitArray} = this.props.PostStore
+    const db = firebase.firestore();
+    const rabbits = db.collection('rabbits');
+    let preArray = [];
+
+    rabbitArray.clear();
+    
+
+    rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
+      querySnapshot.docs.map((doc, i) =>{
+          rabbitArray.push({id: doc.id, data: doc.data()})
+      })
+    })
+    this.setState({rabbitPosts: rabbitArray})
+
     this.updateRabbits()
+
+    
     
     // console.log(this.props.PostStore.rabbitArray[0].data.isGif)
   
@@ -93,29 +110,52 @@ export default class HomeScreen extends React.Component {
   }
 
 
-  addRabbits = (rabList) => {
+  addRabbits = (isFullList) => {
     const {rabbitArray} = this.props.PostStore
     const db = firebase.firestore();
+    const rabbits = db.collection('rabbits');
+    
 
-    
-    
+    var lastPost = null;
+
+  
       
-      rabbitArray.clear();
+   
 
+      if(isFullList){
+        rabbitArray.clear()
+        this.setState({rabbitPosts: []})
+
+        // console.log(`Refreshing new rabbs. Pushing number of new rabbits: ${rabList.length}`)
+
+        rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
+          querySnapshot.docs.map((doc, i) =>{
+              rabbitArray.push({id: doc.id, data: doc.data()})
+              // preArray.push({id: doc.id, data: doc.data()})
+          })
+        
+        }).then(() => {
+         
+          lastPost = rabbitArray[rabbitArray.length - 1];
+          this.setState({rabbitPosts: rabbitArray, lastPostShowing: lastPost})
+        })
+  
+    
+        
+      }else{
+
+        rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.rabbitPosts[this.state.rabbitPosts.length -1 ].data.dateAddedToDB).limit(10).get().then((querySnapshot) => {
+          querySnapshot.docs.map((doc, i) =>{
+              rabbitArray.push({id: doc.id, data: doc.data()})
+          })
+        })
+
+   
      
-      // rabList.sort((a, b) => b.data.dateAddedToDBMS - a.data.dateAddedToDBMS)
-     
-
-      // rabList.forEach((x) => {
-      //   x.data.dateToday = this.convertDateMS(x.data.dateAddedToDBMS)
-      // })
-
-      for(let i = 0; i < rabList.length; i++){
-        rabbitArray.push(rabList[i])
+        lastPost = rabbitArray[rabbitArray.length - 1];
+        this.setState({rabbitPosts: rabbitArray, lastPostShowing: lastPost}) 
       }
-      var joined = this.state.rabbitPosts.concat(rabbitArray)
-      var lastPost = joined[joined.length - 1]
-      this.setState({rabbitPosts: joined, lastPostShowing: lastPost})    
+         
 
    
   }
@@ -130,24 +170,27 @@ export default class HomeScreen extends React.Component {
     const rabbits = db.collection('rabbits');
     let preArray = [];
 
-    rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
+
+
+    
+    rabbits.orderBy("dateAddedToDB", "desc").limit(3).get().then((querySnapshot) => {
       querySnapshot.docs.map((doc, i) =>{
           preArray.push({id: doc.id, data: doc.data()})
       })
 
 
 
-
     
-    }).then(() => {
-          if(preArray.length == rabbitArray.length){
-            // console.log("List is valid")
+    }).then(async () => {
+          if(rabbitArray.length > 0 && preArray[0].id == rabbitArray[0].id && preArray[1].id == rabbitArray[1].id && preArray[2].id == rabbitArray[2].id){
+            console.log("List is valid")
+            this.flatListRef.scrollToOffset({ offset: 0, animated: true });
             
             
           }else{
-            // console.log("needs updated")
+            console.log("needs updated")
             this.flatListRef.scrollToOffset({ offset: 0, animated: true });
-            this.addRabbits(preArray)
+            this.addRabbits(true)
           }
   
     }).then(() => {
@@ -158,25 +201,9 @@ export default class HomeScreen extends React.Component {
                 });
     }).then(() => this.setState({isRefresh: false}))
 
-    
-
-
   }
 
-  getNextRabbits = () => {
-    const db = firebase.firestore();
-    const rabbits = db.collection('rabbits');
-    var preArray = [];
 
-    rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.lastPostShowing.data.dateAddedToDB).limit(10).get().then((querySnapshot) => {
-      querySnapshot.docs.map((doc, i) =>{
-          preArray.push({id: doc.id, data: doc.data()})
-      })
-    }).then(() => {
-      this.addRabbits(preArray)
-      // console.log(`First next post is: ${preArray[0].data.title}`)
-    })
-}
 
 
   onShare = async (post) => {
@@ -393,7 +420,8 @@ export default class HomeScreen extends React.Component {
             removeClippedSubviews={true}
             windowSize = {7}
             onViewableItemsChanged={this.onViewableItemsChanged }
-            onEndReached={() => this.getNextRabbits()}
+            onEndReached={() => this.addRabbits(false)}
+            // onEndReached={() => console.log('ended....')}
             viewabilityConfig={{
               itemVisiblePercentThreshold: 40
             }}

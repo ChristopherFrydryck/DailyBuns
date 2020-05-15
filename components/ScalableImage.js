@@ -5,7 +5,7 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
     const style = [styles.img,  props.style || {}]
     const allProps = Object.assign({}, props,{style:style}) 
 
-    var imgReady = false;
+    
 
    
     var imageHandle = (post) => {
@@ -29,9 +29,11 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
             }else if(width <= 800 && sevenSixtyEight.length == 1){
             //   console.log("Post is 768 img")
               imgURL = sevenSixtyEight[0].uri
+              imgReady = true;
             }else{
             //   console.log("Post is errored")
               imgURL = null
+              imgReady =  true;
             }
           }
         }
@@ -44,19 +46,23 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
         }
       }
 
+      var imgReady = false;
+      
+
     //   console.log(`image is : ${imageHandle(post)}`)
 
     return(
         <ImageBackground
           {...allProps}
-          source={require("../assets/images/Error.jpg")}  
+          source={imgReady ? null : require("../assets/images/Error.jpg")}  
         >
           <Image 
-          underlayColor={underlayColor}
-          source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
-          defaultSource={require("../assets/images/Error.jpg")}
-          onLoad={() => imgReady = true}
-          {...allProps}/>
+            underlayColor={underlayColor}
+            source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
+            defaultSource={require("../assets/images/Error.jpg")}
+            onLoad={() => imgReady = true}
+            {...allProps}
+          />
         </ImageBackground>
     )
 }

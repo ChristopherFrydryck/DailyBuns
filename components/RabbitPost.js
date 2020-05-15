@@ -108,7 +108,7 @@ class RabbitPost extends PureComponent {
     
     
         if (postsFavoritedID.includes(ident)){
-          console.log('already favorited')
+          // console.log('already favorited')
           var index = postsFavoritedID.indexOf(ident);
           if(index !== -1){
             postsFavorited.splice(index, 1)
@@ -124,7 +124,7 @@ class RabbitPost extends PureComponent {
           
        
           
-          console.log('favoriting...')
+          // console.log('favoriting...')
           favorites.push({time: d, id: ident, data: post.data})
           
           users.doc(this.props.UserStore.userID).set({
@@ -156,10 +156,6 @@ class RabbitPost extends PureComponent {
         let favoriteIDs = [];
 
       
-        
-        
-       
-
         for(let i = 0; i < favorites.length; i++){
             favoriteIDs.push(favorites[i].id)
         }
@@ -185,8 +181,9 @@ class RabbitPost extends PureComponent {
         <Lightbox 
           renderContent = {() => (
             <Image 
-            style={{width: Dimensions.get('window').width, height: (Dimensions.get('window').width/this.props.item.data.images.fullSize.width) * this.props.item.data.images.fullSize.height, resizeMode: 'contain'}} 
-            source={{uri: this.props.item.data.isGif ? this.props.item.data.gifs.fullSize.uri : this.props.item.data.images.fullSize.uri}}/>
+              style={{width: Dimensions.get('window').width, height: (Dimensions.get('window').width/this.props.item.data.images.fullSize.width) * this.props.item.data.images.fullSize.height, resizeMode: 'contain'}} 
+              source={{uri: this.props.item.data.isGif ? this.props.item.data.gifs.fullSize.uri : this.props.item.data.images.fullSize.uri}}
+            />
           )}
           underlayColor="white"
         >
