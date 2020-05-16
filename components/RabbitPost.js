@@ -13,6 +13,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import firebaseConfig from '../firebaseConfig';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 
 // Initlialized FB Vars
@@ -148,6 +149,21 @@ class RabbitPost extends PureComponent {
     
       }
 
+      convertDateMS = (duration) => {
+        var now = new Date().getTime()
+        var d = new Date(duration);
+        var hours = (now/3600000) - (duration/3600000)
+    
+        if(hours < 24){
+          return 'Today'
+        }else if(hours < 48){
+          return 'Yesterday'
+        }else{
+          return d.toString().slice(4, 10);
+        }
+    
+      }
+
 
       
 
@@ -177,7 +193,7 @@ class RabbitPost extends PureComponent {
 
         
         
-   
+     
         <Lightbox 
           renderContent = {() => (
             <Image 
@@ -186,14 +202,10 @@ class RabbitPost extends PureComponent {
             />
           )}
           underlayColor="white"
+          
         >
           
-          <ScalableImage style={{borderTopLeftRadius: 5, borderTopRightRadius: 5, height: 245}} post={this.props.item}/>
-          {/* <Card.Cover style={{borderTopLeftRadius: 5, borderTopRightRadius: 5, height: 245}} 
-          source= {this.state.imgSuccess ? {uri: this.state.imgUrl} : require("../assets/images/Error.jpg")}
-          // defaultSource={require("../assets/images/ProfilePic-DailyBuns.jpg")}
-          // source={this.props.item.data.isGif && this.props.item.data.gifs.fullSize.uri.length > 0 ?{uri: this.props.item.data.gifs.fullSize.uri} : this.props.item.data.images.fullSize.uri.length > 0 ? {uri: this.props.item.data.images.fullSize.uri} : require("../assets/images/ProfilePic-DailyBuns.jpg")}
-          /> */}
+          <ScalableImage style={{borderTopLeftRadius: 5, borderTopRightRadius: 5, height: 245}} post={this.props.item} backupImg={require("../assets/images/Error.jpg")}/>
           </Lightbox>
         <Card.Content>
 
@@ -205,7 +217,7 @@ class RabbitPost extends PureComponent {
                 </View>
             </TouchableOpacity>
           </View>
-          <Text style={styles.subTitle}>Posted {this.props.item.data.dateToday} by u/{this.props.item.data.author}</Text>
+          <Text style={styles.subTitle}>Posted {this.convertDateMS(this.props.item.data.dateAddedToDBMS)} by u/{this.props.item.data.author}</Text>
 
       
           

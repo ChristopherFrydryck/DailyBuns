@@ -23,6 +23,7 @@ import { withNavigation } from 'react-navigation';
 import RecommendedPostComponent from '../components/RecommendedPost'
 
 import FavoritesModal from '../components/FavoritesModal'
+import EditAccountModal from '../components/EditAccountModal'
 import ProfilePicture from '../components/ProfilePicture'
 
 import * as FileSystem from 'expo-file-system'
@@ -505,7 +506,7 @@ class FavoritesScreen extends React.Component {
        
           <Image style={{width: width/3 - 12, height: width/3 - 12, aspectRatio: 1/1, resizeMode: 'cover' }}
           source={ item.data.images.thumbnail.uri && item.data.images.thumbnail.uri.split("").length > 0 ? {uri: item.data.images.thumbnail.uri}
-          : require("../assets/images/Error-Thumbnail.jpg")}
+          : item.data.images.fullSize.uri && item.data.images.fullSize.uri.split("").length > 0 ? {uri: item.data.images.fullSize.uri} :require("../assets/images/Error-Thumbnail.jpg")}
           // defaultSource={require("../assets/images/Error-Thumbnail.jpg")}
           />
 
@@ -546,7 +547,94 @@ class FavoritesScreen extends React.Component {
 
     return(
       <View style={{display: "flex", flex: 1, paddingHorizontal: 9 }}>
-          <Modal
+          <EditAccountModal
+            visible = {this.state.profileModalVisible}
+            onRequestClose = {() =>  this.setState({profileModalVisible: false})}
+            closeAction = {() => this.setState({profileModalVisible: false})}
+            closeButtonPressed = {() => this.setState({profileModalVisible: false})}
+            imageUploading = {this.state.imageUploading}
+            imagePressed = {() => this.pickImage()}
+          >
+            <TextInput 
+                  mode="outlined"
+                  disabled={true}
+                  maxLength={55}
+                  style={styles.input}
+                  selectionColor={Colors.tintColor}
+                  placeholder="name@email.com"
+                  label="Email"
+                  value={this.state.email}
+                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
+                  onChangeText={(text) => this.setState({email: text})}
+                  error={this.state.emailError.length > 0 ? true : false}
+              />
+              <HelperText
+                type="error"
+                visible={this.state.emailError.length > 0}
+                padding="none"
+              >
+                {this.state.emailError}
+              </HelperText>
+            <TextInput 
+                  mode="outlined"
+                  maxLength={40}
+                  style={styles.input}
+                  selectionColor={Colors.tintColor}
+                  placeholder="First Name & Last Name"
+                  label="Full Name"
+                  value={this.state.name}
+                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
+                  onChangeText={(text) => this.setState({name: text})}
+                  error={this.state.nameError.length > 0 ? true : false}
+              />
+              <HelperText
+                type="error"
+                visible={this.state.nameError.length > 0}
+                padding="none"
+              >xs
+                </HelperText>
+                 <TextInput 
+                  mode="outlined"
+               
+                  style={styles.input}
+                  selectionColor={Colors.tintColor}
+                  placeholder="(000) 000-0000"
+                  label="Phone"
+                  value={this.state.phone}
+                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
+                  render={props =>
+                    <TextInputMask
+                      {...props}
+                      type={'custom'}
+                      options={{
+                          mask: '(999) 999-9999'
+                      }}
+                    />
+                  }
+                  onChangeText={(text) => this.setState({phone: text})}
+                  error={this.state.phoneError.length > 0 ? true : false}
+              />
+              <HelperText
+                type="error"
+                visible={this.state.phoneError.length > 0}
+                padding="none"
+              >
+                {this.state.phoneError}
+              </HelperText>
+              <Button mode="outlined" color={Colors.tintColor} style={{height: 48, backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor, display: 'flex', alignItems: 'center', justifyContent: 'center'}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? "Email Sent!" : "Send Password Reset"}</Button>
+               
+              <HelperText
+                type="error"
+                visible={this.state.passwordError.length > 0}
+                padding="none"
+                >{this.state.passwordError}
+              </HelperText>
+              
+              <Button onPress={() => {this.sendPasswordReset()}} style={{backgroundColor: Colors.tintColor, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 48}}>
+                <Text style={{color: 'white'}}>Save Changes</Text>
+              </Button>
+          </EditAccountModal>
+          {/* <Modal
             animationType="slide"
             title="Edit Account"
             visible={this.state.profileModalVisible}
@@ -661,7 +749,7 @@ class FavoritesScreen extends React.Component {
               </HelperText>
               
             </SafeAreaView>
-          </Modal>
+          </Modal> */}
           <FavoritesModal
             item={item}
             onRequestClose={() =>  this.setState({bunnyModalVisible: false})}

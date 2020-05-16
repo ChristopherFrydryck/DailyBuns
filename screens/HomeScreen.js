@@ -94,10 +94,13 @@ export default class HomeScreen extends React.Component {
 
     rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
       querySnapshot.docs.map((doc, i) =>{
+          preArray.push({id: doc.id, data: doc.data()})
           rabbitArray.push({id: doc.id, data: doc.data()})
       })
     })
-    this.setState({rabbitPosts: rabbitArray})
+    this.setState({rabbitPosts: preArray})
+  
+
 
     this.updateRabbits()
 
@@ -115,45 +118,51 @@ export default class HomeScreen extends React.Component {
     const db = firebase.firestore();
     const rabbits = db.collection('rabbits');
     
-
+    
     var lastPost = null;
 
-  
+    
       
    
 
       if(isFullList){
-        rabbitArray.clear()
+        
         this.setState({rabbitPosts: []})
+        var preArray =  [];
+        rabbitArray.clear()
 
         // console.log(`Refreshing new rabbs. Pushing number of new rabbits: ${rabList.length}`)
 
         rabbits.orderBy("dateAddedToDB", "desc").limit(10).get().then((querySnapshot) => {
           querySnapshot.docs.map((doc, i) =>{
+              preArray.push({id: doc.id, data: doc.data()})
               rabbitArray.push({id: doc.id, data: doc.data()})
-              // preArray.push({id: doc.id, data: doc.data()})
           })
         
         }).then(() => {
          
-          lastPost = rabbitArray[rabbitArray.length - 1];
-          this.setState({rabbitPosts: rabbitArray, lastPostShowing: lastPost})
+          lastPost = preArray[preArray.length - 1];
+          this.setState({rabbitPosts: preArray, lastPostShowing: lastPost})
+          
         })
   
     
         
       }else{
 
+        var preArray = this.state.rabbitPosts
+
         rabbits.orderBy("dateAddedToDB", "desc").startAfter(this.state.rabbitPosts[this.state.rabbitPosts.length -1 ].data.dateAddedToDB).limit(10).get().then((querySnapshot) => {
           querySnapshot.docs.map((doc, i) =>{
+              preArray.push({id: doc.id, data: doc.data()})
               rabbitArray.push({id: doc.id, data: doc.data()})
           })
         })
 
    
      
-        lastPost = rabbitArray[rabbitArray.length - 1];
-        this.setState({rabbitPosts: rabbitArray, lastPostShowing: lastPost}) 
+        lastPost = preArray[preArray.length - 1];
+        this.setState({rabbitPosts: preArray, lastPostShowing: lastPost}) 
       }
          
 
@@ -171,7 +180,8 @@ export default class HomeScreen extends React.Component {
     let preArray = [];
 
 
-
+    // console.log("Your list is: " + this.state.rabbitPosts.length + " long.")
+    // console.log("Total rabbit posts: " + rabbitArray.length + " long.")
     
     rabbits.orderBy("dateAddedToDB", "desc").limit(3).get().then((querySnapshot) => {
       querySnapshot.docs.map((doc, i) =>{
@@ -250,20 +260,7 @@ export default class HomeScreen extends React.Component {
 
 
 
-  convertDateMS = (duration) => {
-    var now = new Date().getTime()
-    var d = new Date(duration);
-    var hours = (now/3600000) - (duration/3600000)
 
-    if(hours < 24){
-      return 'Today'
-    }else if(hours < 48){
-      return 'Yesterday'
-    }else{
-      return d.toString().slice(4, 10);
-    }
-
-  }
 
 
   onViewableItemsChanged = ({ viewableItems, changed }) => {
@@ -405,7 +402,7 @@ export default class HomeScreen extends React.Component {
           <FlatList 
             style={{}}
             data={this.state.rabbitPosts}
-            initialNumToRender={5}
+            initialNumToRender={3}
             maxToRenderPerBatch={10}
             key={(item) => item.id}
             ref={(ref) => { this.flatListRef = ref; }}

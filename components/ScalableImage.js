@@ -1,14 +1,19 @@
 import React from 'react'
 import { StyleSheet, Dimensions, View, Image, ImageBackground} from 'react-native';
 
-const ScalableImage = ({post, underlayColor, ...props}) => {
-    const style = [styles.img,  props.style || {}]
-    const allProps = Object.assign({}, props,{style:style}) 
+class ScalableImage extends React.Component{
 
+    constructor(props){
+      super(props)
+
+      this.state={
+        imgReady: false,
+      }
+    }
     
 
    
-    var imageHandle = (post) => {
+    imageHandle = (post) => {
     
         var imgURL = null;
         var width = Dimensions.get('window').width;
@@ -46,25 +51,30 @@ const ScalableImage = ({post, underlayColor, ...props}) => {
         }
       }
 
-      var imgReady = false;
+     
       
 
     //   console.log(`image is : ${imageHandle(post)}`)
-
+    render(){
+      const style = [styles.img,  this.props.style || {}]
+      const allProps = Object.assign({}, this.props,{style:style}) 
+    
     return(
         <ImageBackground
           {...allProps}
-          source={imgReady ? null : require("../assets/images/Error.jpg")}  
+          source={this.state.imgReady ? null : this.props.backupImg}  
         >
           <Image 
-            underlayColor={underlayColor}
-            source={imageHandle(post) ? {uri: imageHandle(post)} : require("../assets/images/Error.jpg")} 
-            defaultSource={require("../assets/images/Error.jpg")}
-            onLoad={() => imgReady = true}
+            underlayColor={this.props.underlayColor}
+            source={this.imageHandle(this.props.post) ? {uri: this.imageHandle(this.props.post)} : this.props.backupImg} 
+            defaultSource={this.props.backupImg}
+            onLoad={() => this.setState({imgReady: true})}
             {...allProps}
           />
         </ImageBackground>
     )
+  }
+
 }
 
 
