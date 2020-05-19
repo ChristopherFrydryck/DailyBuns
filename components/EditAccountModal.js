@@ -26,7 +26,7 @@ render(){
             onRequestClose={this.props.onRequestClose}
             closeAction = {this.props.closeAction}
           > 
-            <SafeAreaView style={{flex: 1, paddingHorizontal: 9 }}>
+            <SafeAreaView style={{flex: 1, paddingHorizontal: 9}}>
               <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', zIndex: 99, height: 48, alignItems: 'center', paddingHorizontal: 16}}>
                    <Text>Edit Account</Text>
                    <TouchableOpacity onPress={this.props.closeButtonPressed}>
@@ -57,7 +57,7 @@ render(){
                   />
                 }
             </View>
-            <ScrollView style={{flex: 1, paddingHorizontal: 8, marginTop: 8}}>
+            <ScrollView style={{paddingHorizontal: 8, marginTop: 8,}} contentContainerStyle={{flex: 1, justifyContent: 'space-between'}}>
             {this.props.children}
             </ScrollView>
               

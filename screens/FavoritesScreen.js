@@ -46,8 +46,6 @@ import 'firebase/auth';
 import firebaseConfig from '../firebaseConfig';
 
 
-import { MonoText } from '../components/StyledText';
-import SafeAreaView from 'react-native-safe-area-view';
 import { FlatList } from 'react-native-gesture-handler';
 import ScalableImage from '../components/ScalableImage';
 
@@ -79,7 +77,6 @@ class FavoritesScreen extends React.Component {
       selectedFavorite: null,
       recommendedPost: null,
       notificationPermissions: false,
-      numFavoritesMonth: 0,
       
       imageUploading: false,
       name: this.props.UserStore.fullname,
@@ -132,7 +129,6 @@ class FavoritesScreen extends React.Component {
     this.focusListener = this.props.navigation.addListener('didFocus', () => {
       if(this.props.UserStore.favorites.length !== 0){
         this.RefreshFunction();
-        this.getUserFavoritesDates();
       }
     
     });
@@ -206,19 +202,6 @@ class FavoritesScreen extends React.Component {
     
 
     
-  }
-
-  getUserFavoritesDates = () => {
-    var now = new Date().getTime();
-    var numFavs = 0;
-    // console.log(Math.ceil(now/86400000) - Math.ceil(this.props.UserStore.favorites[].time/86400000))
-    for(let i = 0; i < this.props.UserStore.favorites.length; i++){
-      if(Math.ceil(now/86400000) - Math.ceil(this.props.UserStore.favorites[i].time/86400000) < 30){
-        numFavs ++;
-        
-      }
-    }
-    this.setState({numFavoritesMonth: numFavs})
   }
 
   getRecommendedPosts = (post) => {
@@ -340,17 +323,49 @@ class FavoritesScreen extends React.Component {
     const regexFullname = /[^0-9]([a-zA-Z]{2,})+[ ]+([a-zA-Z-']{2,})*$/i;
     const regexPhone = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
 
-    console.log(regexFullname.test(this.state.name))
-    console.log(regexPhone.test(this.state.phone))
+    const db = firebase.firestore();
+    const doc = db.collection('users').doc(this.props.UserStore.userID);
+
+    // console.log(regexFullname.test(this.state.name))
+    // console.log(regexPhone.test(this.state.phone))
+
+    const nameValid = regexFullname.test(this.state.name);
+    const phoneValid = regexPhone.test(this.state.phone);
 
 
-    // this.props.UserStore.fullname = this.state.name;
-    // this.props.UserStore.phone = this.state.phone;
+    if(nameValid || phoneValid){
+      if(nameValid){
+        this.props.UserStore.fullname = this.state.name;
+        doc.update({
+          fullname: this.props.UserStore.fullname,
+          firstName: this.props.UserStore.firstname,
+          lastName: this.props.UserStore.lastname,
+        })
+      }else{
+        this.setState({nameError: "Enter a valid first name and last name"})
+      }
+
+      if(phoneValid){
+        this.props.UserStore.phone = this.state.phone;
+        doc.update({
+          phone: this.props.UserStore.phone
+        })
+      }else{
+        this.setState({phoneError: "Enter a valid phone number"})
+      }
+
+      if(nameValid && phoneValid){
+        this.setState({profileModalVisible: false})
+      }
+    }else{
+      this.setState({nameError: "Enter a valid first name and last name", phoneError: "Enter a valid phone number"})
+    }
+
+    
 
 
 
-    const nameValid = true;
-    const phoneValid = true;
+    
 
   }
 
@@ -359,6 +374,9 @@ class FavoritesScreen extends React.Component {
   sendPasswordReset = () => {
     firebase.auth().sendPasswordResetEmail(this.props.UserStore.email).then(() => {
       this.setState({sentPWReset: true, passwordError: ''})
+      setTimeout(() => {
+        this.setState({sentPWReset: false})
+      }, 3000)
     }).catch((error) => {
       this.setState({passwordError: error.toString(), sentPWReset: false})
       // console.log(this.state.passwordError)
@@ -566,7 +584,7 @@ class FavoritesScreen extends React.Component {
             imageUploading = {this.state.imageUploading}
             imagePressed = {() => this.pickImage()}
           >
-            <ScrollView>
+            <View>
             <TextInput 
                   mode="outlined"
                   disabled={true}
@@ -603,7 +621,7 @@ class FavoritesScreen extends React.Component {
                 type="error"
                 visible={this.state.nameError.length > 0}
                 padding="none"
-              >xs
+              >{this.state.nameError}
                 </HelperText>
                  <TextInput 
                   mode="outlined"
@@ -633,7 +651,7 @@ class FavoritesScreen extends React.Component {
               >
                 {this.state.phoneError}
               </HelperText>
-              <Button mode="outlined" color={Colors.tintColor} style={{backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor}} contentStyle={{height: 48}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? "Email Sent!" : "Send Password Reset"}</Button>
+              <TouchableOpacity color={Colors.tintColor} style={{backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor, height: 48, alignItems: 'center', justifyContent: 'center'}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? <Text style={{color: Colors.tintColor, fontWeight: 'bold'}}>Email Sent!</Text> : <Text style={{color: Colors.tintColor, fontWeight: 'bold'}}>Send Password Reset</Text>}</TouchableOpacity>
                
               <HelperText
                 type="error"
@@ -641,127 +659,15 @@ class FavoritesScreen extends React.Component {
                 padding="none"
                 >{this.state.passwordError}
               </HelperText>
-                <Button onPress={() => {this.updateProfileInfo()}} style={{backgroundColor: Colors.tintColor, color: 'white'}} contentStyle={{height: 48}}>
-                  <Text style={{color: 'white'}}>Save Changes</Text>
-                </Button>
-              </ScrollView>
-          </EditAccountModal>
-          {/* <Modal
-            animationType="slide"
-            title="Edit Account"
-            visible={this.state.profileModalVisible}
-            transparent={false}
-            onRequestClose={() =>  this.setState({profileModalVisible: false})}
-            closeAction = {() => this.setState({profileModalVisible: false})}
-          > 
-            <SafeAreaView style={{paddingHorizontal: 9 }}>
-              <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', zIndex: 99, height: 48, alignItems: 'center', paddingHorizontal: 8}}>
-                   <Text>Edit Account</Text>
-                   <TouchableOpacity onPress={() => this.setState({profileModalVisible: false})}>
-                    <Ionicons size={48} style={{color: 'black'}} name={Platform.OS = 'ios' ? 'ios-close' : 'md-close'} />
-                   </TouchableOpacity>
-                </View>
-                <View style={{display: "flex", flexDirection: 'row'}}>
-                {this.state.imageUploading ?
-                  <View style={{width: 60, height: 60, marginRight: 16, elevation: 2}}>
-                  <ActivityIndicator />
-                </View>
-                :UserStore.photo && this.state.imageUploading == false?  
-                  <ProfilePicture 
-                    editable={true} 
-                    onPress={() => this.pickImage()} 
-                    style={{marginRight: 16}} 
-                    source={{uri: UserStore.photo}} 
-                    width={60} 
-                    height={60}
-                  />
-                :
-                  <ProfilePicture 
-                    editable={true} 
-                    onPress={() => this.pickImage()} 
-                    style={{marginRight: 16}} 
-                    width={60} 
-                    height={60}
-                  />
-                }
-            </View>
-            <TextInput 
-                  mode="outlined"
-                  disabled={true}
-                  maxLength={55}
-                  style={styles.input}
-                  selectionColor={Colors.tintColor}
-                  placeholder="name@email.com"
-                  label="Email"
-                  value={this.state.email}
-                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
-                  onChangeText={(text) => this.setState({email: text})}
-                  error={this.state.emailError.length > 0 ? true : false}
-              />
-              <HelperText
-                type="error"
-                visible={this.state.emailError.length > 0}
-                padding="none"
-              >
-                {this.state.emailError}
-              </HelperText>
-            <TextInput 
-                  mode="outlined"
-                  maxLength={40}
-                  style={styles.input}
-                  selectionColor={Colors.tintColor}
-                  placeholder="First Name & Last Name"
-                  label="Full Name"
-                  value={this.state.name}
-                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
-                  onChangeText={(text) => this.setState({name: text})}
-                  error={this.state.nameError.length > 0 ? true : false}
-              />
-              <HelperText
-                type="error"
-                visible={this.state.nameError.length > 0}
-                padding="none"
-              >xs
-                </HelperText>
-                 <TextInput 
-                  mode="outlined"
-               
-                  style={styles.input}
-                  selectionColor={Colors.tintColor}
-                  placeholder="(000) 000-0000"
-                  label="Phone"
-                  value={this.state.phone}
-                  theme={{ colors: { primary: Colors.tintColor,underlineColor:'transparent',}}}
-                  render={props =>
-                    <TextInputMask
-                      {...props}
-                      type={'custom'}
-                      options={{
-                          mask: '(999) 999-9999'
-                      }}
-                    />
-                  }
-                  onChangeText={(text) => this.setState({phone: text})}
-                  error={this.state.phoneError.length > 0 ? true : false}
-              />
-              <HelperText
-                type="error"
-                visible={this.state.phoneError.length > 0}
-                padding="none"
-              >
-                {this.state.phoneError}
-              </HelperText>
-              <Button mode="outlined" color={Colors.tintColor} style={{backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? "Email Sent!" : "Send Password Reset"}</Button>
-               
-              <HelperText
-                type="error"
-                visible={this.state.passwordError.length > 0}
-                padding="none"
-                >{this.state.passwordError}
-              </HelperText>
+              </View>
+                <TouchableOpacity onPress={() => {this.updateProfileInfo()}} style={{backgroundColor: Colors.tintColor, color: 'white', marginBottom: 32, height: 48, borderRadius: 4, alignItems: 'center', justifyContent: 'center'}}>
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>Save Changes</Text>
+                </TouchableOpacity>
               
-            </SafeAreaView>
-          </Modal> */}
+          </EditAccountModal>
+       
+
+
           <FavoritesModal
             item={item}
             onRequestClose={() =>  this.setState({bunnyModalVisible: false})}
