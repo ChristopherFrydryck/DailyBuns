@@ -340,10 +340,21 @@ class FavoritesScreen extends React.Component {
     const regexFullname = /[^0-9]([a-zA-Z]{2,})+[ ]+([a-zA-Z-']{2,})*$/i;
     const regexPhone = /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
 
+    console.log(regexFullname.test(this.state.name))
+    console.log(regexPhone.test(this.state.phone))
+
+
+    // this.props.UserStore.fullname = this.state.name;
+    // this.props.UserStore.phone = this.state.phone;
+
+
+
     const nameValid = true;
     const phoneValid = true;
 
   }
+
+ 
 
   sendPasswordReset = () => {
     firebase.auth().sendPasswordResetEmail(this.props.UserStore.email).then(() => {
@@ -408,7 +419,7 @@ class FavoritesScreen extends React.Component {
       }
     };
 
-
+    
     
 
 
@@ -555,6 +566,7 @@ class FavoritesScreen extends React.Component {
             imageUploading = {this.state.imageUploading}
             imagePressed = {() => this.pickImage()}
           >
+            <ScrollView>
             <TextInput 
                   mode="outlined"
                   disabled={true}
@@ -621,7 +633,7 @@ class FavoritesScreen extends React.Component {
               >
                 {this.state.phoneError}
               </HelperText>
-              <Button mode="outlined" color={Colors.tintColor} style={{height: 48, backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor, display: 'flex', alignItems: 'center', justifyContent: 'center'}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? "Email Sent!" : "Send Password Reset"}</Button>
+              <Button mode="outlined" color={Colors.tintColor} style={{backgroundColor: "white", borderWidth: 2, borderColor: Colors.tintColor}} contentStyle={{height: 48}} onPress={() => {this.sendPasswordReset()}}>{this.state.sentPWReset ? "Email Sent!" : "Send Password Reset"}</Button>
                
               <HelperText
                 type="error"
@@ -629,10 +641,10 @@ class FavoritesScreen extends React.Component {
                 padding="none"
                 >{this.state.passwordError}
               </HelperText>
-              
-              <Button onPress={() => {this.sendPasswordReset()}} style={{backgroundColor: Colors.tintColor, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 48}}>
-                <Text style={{color: 'white'}}>Save Changes</Text>
-              </Button>
+                <Button onPress={() => {this.updateProfileInfo()}} style={{backgroundColor: Colors.tintColor, color: 'white'}} contentStyle={{height: 48}}>
+                  <Text style={{color: 'white'}}>Save Changes</Text>
+                </Button>
+              </ScrollView>
           </EditAccountModal>
           {/* <Modal
             animationType="slide"

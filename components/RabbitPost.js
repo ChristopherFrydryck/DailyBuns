@@ -13,7 +13,6 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import firebaseConfig from '../firebaseConfig';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 
 // Initlialized FB Vars
