@@ -26,6 +26,9 @@
     "ios": {
       "supportsTablet": true
     },
+    "android": {
+      "package": "com.dailybuns.dailybuns"
+    },
     "androidStatusBarColor": "#3eba49",
     "androidStatusBar": {
       "barStyle": "light-content",
