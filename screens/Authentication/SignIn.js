@@ -10,8 +10,12 @@ import {
   View,
   StatusBar,
   SafeAreaView,
-  YellowBox
+  YellowBox,
+  Animated,
+  Dimensions
 } from 'react-native';
+
+import LottieView from "lottie-react-native";
 
 import Colors from '../../constants/Colors'
 
@@ -52,6 +56,10 @@ export default class SignIn extends React.Component {
 
       this.onSignIn = this.onSignIn.bind(this)
         
+  }
+
+  componentDidMount(){
+    // this.animation.play();
   }
 
   onSignIn = async() => {
@@ -167,6 +175,7 @@ export default class SignIn extends React.Component {
             
             <StatusBar hidden={false} />
             <SafeAreaView />
+            
           
             <KeyboardAwareScrollView
               contentContainerStyle={styles.contentContainer}
@@ -174,6 +183,11 @@ export default class SignIn extends React.Component {
               enableOnAndroid
               keyboardShouldPersistTaps="handled"
             >
+              <View style={{flex: 1/2, justifyContent: 'center'}}>
+              <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+               <Image source={require("../../assets/images/DB-Wordmark.gif")} style={{height: 72, width: 250}} /> 
+            </View>
+            <View style={{flex: 5, marginTop: 32}}>
 
           
                 <TextInput 
@@ -213,7 +227,9 @@ export default class SignIn extends React.Component {
                 >
                   {this.state.passwordError}
                 </HelperText>
-                <Button style={styles.btn} mode="contained" onPress={() => this.onSignIn()}>Sign In</Button>
+                <Button style={{backgroundColor: 'orange', marginTop: 16}} contentStyle={styles.btn} mode="contained" onPress={() => this.onSignIn()}>Sign In</Button>
+                </View>
+                </View>
               
             </KeyboardAwareScrollView>
         </View>
@@ -234,12 +250,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 16,
-    flexGrow: 1,
+    flexGrow: 9,
     justifyContent : 'center',
   },
   authContainer: {
     paddingHorizontal: 16,
-    flexGrow: 1,
+    flex: 1,
     justifyContent : 'center',
     alignItems: 'center',
   },
@@ -249,7 +265,6 @@ const styles = StyleSheet.create({
   btn: {
       display: 'flex',
       justifyContent: 'center',
-      marginVertical: 16,
       height: 48,
       backgroundColor: 'orange'
   }

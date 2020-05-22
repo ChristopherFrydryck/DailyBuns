@@ -207,7 +207,7 @@ class FavoritesScreen extends React.Component {
   getRecommendedPosts = (post) => {
     let favoritedIDs = this.props.UserStore.favorites.map((x) => x.id)
 
-    let recPost = this.props.PostStore.rabbitArray.filter((x) => x.data.author != post.data.id && !favoritedIDs.includes(x.data.id) )
+    let recPost = this.props.PostStore.rabbitArray.filter((x) => !favoritedIDs.includes(x.data.id) )
 
     // console.log(recPost[Math.floor(Math.random() * recPost.length)].data)
     
@@ -216,6 +216,8 @@ class FavoritesScreen extends React.Component {
     }else{
       this.setState({recommendedPost: null})
     }
+
+    console.log(recPost.length)
     // console.log(`Recommended Post: ${this.state.recommendedPost.data.id}`)
   }
 

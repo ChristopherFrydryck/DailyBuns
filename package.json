@@ -30,6 +30,7 @@
     "expo-web-browser": "~8.0.0",
     "firebase": "^7.9.0",
     "fs-extra": "^9.0.0",
+    "lottie-react-native": "^2.6.1",
     "mobx": "^5.15.1",
     "mobx-react": "^6.1.4",
     "node-fetch": "^2.6.0",
