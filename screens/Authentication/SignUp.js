@@ -10,7 +10,8 @@ import {
   View,
   SafeAreaView,
   StatusBar,
-  YellowBox
+  YellowBox,
+  KeyboardAvoidingView
 } from 'react-native';
 
 import { Button, TextInput, ActivityIndicator, HelperText} from 'react-native-paper'
@@ -197,13 +198,18 @@ export default class SignUp extends React.Component {
            
         <StatusBar hidden={false} />
         <SafeAreaView />
+      <ScrollView style={{flex: 1}}  contentContainerStyle={{justifyContent: 'center'}}>
+      <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "padding" : "height"} style={{flex: 1, }}>
       
       <KeyboardAwareScrollView
         contentContainerStyle={styles.contentContainer}
-        extraScrollHeight={Platform.OS == 'ios' ? 85 : 35}  
+        extraHeight={140}
+        extraScrollHeight={140}  
         enableOnAndroid
         keyboardShouldPersistTaps="handled"
+        
       >
+              <View style={{paddingTop: 32}}/>
               <TextInput 
                   mode="outlined"
                   maxLength={40}
@@ -291,8 +297,11 @@ export default class SignUp extends React.Component {
                 {this.state.passwordError}
               </HelperText>
               <Button style={styles.btn} mode="contained" onPress={() => this.onSignUp()}>Sign Up</Button>
+              
             </KeyboardAwareScrollView>
-         
+           
+            </KeyboardAvoidingView>
+            </ScrollView>
          </View>
       );
     }
@@ -305,13 +314,13 @@ export default class SignUp extends React.Component {
   
   const styles = StyleSheet.create({
     container: {
-      marginTop: StatusBar.currentHeight,
+      // marginTop: StatusBar.currentHeight,
       flex: 1,
       backgroundColor: '#fff',
     },
     contentContainer: {
       paddingHorizontal: 16,
-      flexGrow: 1,
+      flex: 1,
       justifyContent : 'center',
     },
     authContainer: {
@@ -328,6 +337,6 @@ export default class SignUp extends React.Component {
         justifyContent: 'center',
         marginVertical: 16,
         height: 48,
-        backgroundColor: 'orange'
+        backgroundColor: Colors.tintColor
     }
   });

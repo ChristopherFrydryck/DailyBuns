@@ -45,10 +45,12 @@ export default class SignIn extends React.Component {
   constructor(props){
       super(props);
       this.state = {
-        email: 'cfrydryck@gmail.com',
+        email: '',
         emailError: '',
-        password: 'Fallon430',
+        password: '',
         passwordError: '',
+        passwordResetError: '',
+        sentPWReset: false,
 
         authenticating: false,
       }
@@ -60,6 +62,18 @@ export default class SignIn extends React.Component {
 
   componentDidMount(){
     // this.animation.play();
+  }
+
+  sendPasswordReset = () => {
+    firebase.auth().sendPasswordResetEmail(this.state.email).then(() => {
+      this.setState({sentPWReset: true, passwordResetError: ''})
+      setTimeout(() => {
+        this.setState({sentPWReset: false})
+      }, 3000)
+    }).catch((error) => {
+      this.setState({passwordResetError: error.toString(), sentPWReset: false})
+      // console.log(this.state.passwordError)
+    });
   }
 
   onSignIn = async() => {
@@ -183,7 +197,7 @@ export default class SignIn extends React.Component {
               enableOnAndroid
               keyboardShouldPersistTaps="handled"
             >
-              <View style={{flex: 1/2, justifyContent: 'center'}}>
+         
               <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                <Image source={require("../../assets/images/DB-Wordmark.gif")} style={{height: 72, width: 250}} /> 
             </View>
@@ -227,9 +241,15 @@ export default class SignIn extends React.Component {
                 >
                   {this.state.passwordError}
                 </HelperText>
-                <Button style={{backgroundColor: 'orange', marginTop: 16}} contentStyle={styles.btn} mode="contained" onPress={() => this.onSignIn()}>Sign In</Button>
+                <Button style={{marginTop: 16}} contentStyle={styles.btn} mode="contained" onPress={() => this.onSignIn()}>Sign In</Button>
+                <Button style={{backgroundColor: 'white', marginTop: 16,}} color={Colors.tintColor} contentStyle={styles.btnReset} mode="text" onPress={() => this.sendPasswordReset()}>{this.state.sentPWReset ? `Sent Email to ${this.state.email}` : `Forgot Password`}</Button>
+                <HelperText
+                  type="error"
+                  visible={this.state.passwordResetError.length > 0}
+                  padding="none"
+                >{this.state.passwordResetError}</HelperText>
                 </View>
-                </View>
+      
               
             </KeyboardAwareScrollView>
         </View>
@@ -247,10 +267,11 @@ const styles = StyleSheet.create({
     marginTop: StatusBar.currentHeight,
     flex: 1,
     backgroundColor: '#fff',
+    justifyContent: 'center'
   },
   contentContainer: {
     paddingHorizontal: 16,
-    flexGrow: 9,
+    flex: 1,
     justifyContent : 'center',
   },
   authContainer: {
@@ -266,6 +287,12 @@ const styles = StyleSheet.create({
       display: 'flex',
       justifyContent: 'center',
       height: 48,
-      backgroundColor: 'orange'
+      backgroundColor: Colors.tintColor
+  },
+  btnRest: {
+    display: 'flex',
+      justifyContent: 'center',
+      height: 48,
+      backgroundColor: 'white'
   }
 });
