@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {lazy, Suspense} from 'react';
 import {
   Image,
   Platform,
@@ -17,7 +17,9 @@ import { Card, Title, Paragraph, Button} from 'react-native-paper'
 import Lightbox from 'react-native-lightbox'
 import {LinearGradient} from 'expo-linear-gradient'
 import ClickChip from '../components/ClickChip'
-import RabbitPost from '../components/RabbitPost'
+// import RabbitPost from '../components/RabbitPost'
+import RabbitPostSkeleton from '../components/RabbitPostSkeleton'
+
 
 
 
@@ -41,6 +43,7 @@ import firebaseConfig from '../firebaseConfig';
 import SafeAreaView from 'react-native-safe-area-view';
 import { FlatList } from 'react-native-gesture-handler';
 
+const RabbitPost = lazy(() => import('../components/RabbitPost'))
 
 
 
@@ -83,7 +86,7 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount = () => {
-
+    console.log(this.state.rabbitPosts.length)
     const {rabbitArray} = this.props.PostStore
     const db = firebase.firestore();
     const rabbits = db.collection('rabbits');
@@ -102,7 +105,9 @@ export default class HomeScreen extends React.Component {
   
 
 
-    this.updateRabbits()
+    this.addRabbits(true)
+    
+
 
     
     
@@ -210,8 +215,11 @@ export default class HomeScreen extends React.Component {
                     }, 1500)
                 });
     }).then(() => this.setState({isRefresh: false}))
+    console.log(this.state.rabbitPosts.length)
 
   }
+
+
 
 
 
@@ -399,6 +407,13 @@ export default class HomeScreen extends React.Component {
             <Text style={styles.pageHead}>Top recent posts from r/Rabbits</Text>
         
 
+
+          {this.state.rabbitPosts.length == 0 ?
+          <View style={{flexDirection: 'row'}}>
+            <RabbitPostSkeleton />
+            <RabbitPostSkeleton />
+          </View>
+          : 
           <FlatList 
             style={{}}
             data={this.state.rabbitPosts}
@@ -422,8 +437,13 @@ export default class HomeScreen extends React.Component {
             viewabilityConfig={{
               itemVisiblePercentThreshold: 40
             }}
-            renderItem={({item}) => <RabbitPost item={item} />}
+            renderItem={({item}) => 
+              <Suspense fallback={<RabbitPostSkeleton/>}>
+                <RabbitPost item={item} />
+              </Suspense>
+            }
           />
+        }
         
 
 </View>

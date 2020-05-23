@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, lazy, Suspense } from 'react'
 import {View, Text, TouchableOpacity, StyleSheet, Linking, Dimensions, Platform, Image, Share} from 'react-native';
 import { Card, Button} from 'react-native-paper';
 import Lightbox from 'react-native-lightbox';
@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { inject, observer } from 'mobx-react';
 import Colors from '../constants/Colors'
 import ScalableImage from '../components/ScalableImage'
+
+
 
 //Firebase Imports
 import withFirebaseAuth from 'react-with-firebase-auth'
@@ -31,6 +33,7 @@ class RabbitPost extends PureComponent {
 
         this.state = {
             rerender: false,
+            isLoaded: true,
         }
 
         this.onShare = this.onShare.bind(this)
@@ -175,6 +178,7 @@ class RabbitPost extends PureComponent {
             favoriteIDs.push(favorites[i].id)
         }
         
+        if(this.state.isLoaded){
         return(
           
             // <Text>{this.props.author}</Text>
@@ -229,6 +233,11 @@ class RabbitPost extends PureComponent {
       </Card>
       
     )
+    }else{
+      return(
+        <Text>LOADING>>>>></Text>
+      )
+    }
         
     }
 }
